@@ -20,70 +20,73 @@ const navLinks = [
 ]
 
 export default function Navigation() {
-  const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [desktopServicesOpen, setDesktopServicesOpen] = useState(false)
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 80)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    if (!mobileOpen) return
 
-  useEffect(() => {
-    setMobileOpen(false)
-    setDropdownOpen(false)
-  }, [location.pathname])
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false)
+    }
+
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [mobileOpen])
 
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10)]"
-        style={{ height: 96 }}
+        aria-label="Main navigation"
+        className="fixed top-0 left-0 right-0 z-50 h-20 xl:h-24 transition-all duration-300 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.10)]"
       >
-        <div className="max-w-[1400px] mx-auto px-10 h-full flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-3">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3 group">
             <img
               src="/images/ES LOGO.png"
               alt="Elektra Engineering Services Logo"
-              className="h-12 w-auto object-contain flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+              className="h-10 sm:h-12 w-auto object-contain flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
             />
-            <div className="flex flex-col">
-              <span className="font-extrabold text-3xl tracking-[0.05em] leading-none text-[#172554]">
+            <div className="flex min-w-0 flex-col">
+              <span className="font-extrabold text-xl sm:text-2xl xl:text-3xl tracking-[0.05em] leading-none text-[#172554]">
                 ELEKTRA
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] mt-1 text-[#2563eb]">
+              <span className="hidden sm:block text-[10px] font-semibold uppercase tracking-[0.2em] mt-1 text-[#2563eb]">
                 ENGINEERING SERVICES
               </span>
-              <span className="text-[8px] font-medium italic tracking-[0.12em] mt-0.5 text-[#64748b]">
+              <span className="hidden lg:block text-[8px] font-medium italic tracking-[0.12em] mt-0.5 text-[#64748b]">
                 Ultimate Smart Engineering Solution
               </span>
             </div>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-10">
+          <div className="hidden xl:flex items-center gap-5 2xl:gap-8">
             {navLinks.map((link) => (
               <div
                 key={link.name}
                 className="relative"
-                onMouseEnter={() => link.hasDropdown && setDropdownOpen(true)}
-                onMouseLeave={() => link.hasDropdown && setDropdownOpen(false)}
+                onMouseEnter={() => link.hasDropdown && setDesktopServicesOpen(true)}
+                onMouseLeave={() => link.hasDropdown && setDesktopServicesOpen(false)}
               >
                 {link.hasDropdown ? (
                   <button
+                    type="button"
+                    aria-expanded={desktopServicesOpen}
+                    aria-haspopup="true"
+                    onClick={() => setDesktopServicesOpen((open) => !open)}
                     className="flex items-center gap-1 font-semibold text-base tracking-[0.05em] transition-colors text-[#0f172a] hover:text-[#1e40af]"
                   >
                     {link.name}
-                    <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 transition-transform ${desktopServicesOpen ? 'rotate-180' : ''}`} />
                   </button>
                 ) : (
                   <Link
                     to={link.path}
+                    aria-current={location.pathname === link.path ? 'page' : undefined}
                     className={`font-semibold text-base tracking-[0.05em] transition-colors pb-1 text-[#0f172a] hover:text-[#1e40af] ${location.pathname === link.path ? 'border-b-2 border-[#1e40af]' : ''}`}
                   >
                     {link.name}
@@ -91,13 +94,14 @@ export default function Navigation() {
                 )}
 
                 {/* Dropdown */}
-                {link.hasDropdown && dropdownOpen && (
-                  <div className="absolute top-full left-0 pt-2 w-[360px]">
+                {link.hasDropdown && desktopServicesOpen && (
+                  <div className="absolute top-full left-0 pt-2 w-[360px] max-w-[calc(100vw-2rem)]">
                     <div className="bg-white rounded-lg shadow-lg border border-[#e2e8f0] p-4">
                       {serviceLinks.map((service) => (
                         <Link
                           key={service.name}
                           to={service.path}
+                          onClick={() => setDesktopServicesOpen(false)}
                           className="flex items-start gap-3 p-3 rounded-md hover:bg-[#e2e8f0] transition-colors group"
                         >
                           <service.icon className="w-5 h-5 text-[#1e40af] mt-0.5 flex-shrink-0" />
@@ -117,7 +121,7 @@ export default function Navigation() {
           </div>
 
           {/* Right Side */}
-          <div className="hidden lg:flex items-center gap-5">
+          <div className="hidden xl:flex items-center gap-3 2xl:gap-5">
             <a
               href="tel:08001234567"
               className="flex items-center gap-2 font-semibold text-base transition-colors text-[#475569] hover:text-[#1e40af]"
@@ -127,7 +131,7 @@ export default function Navigation() {
             </a>
             <Link
               to="/quote"
-              className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-semibold text-base tracking-[0.1em] px-8 py-3.5 rounded-full transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-semibold text-base tracking-[0.1em] px-5 2xl:px-8 py-3.5 rounded-full transition-all hover:-translate-y-0.5 hover:shadow-lg"
             >
               Get a Quote
             </Link>
@@ -135,8 +139,12 @@ export default function Navigation() {
 
           {/* Mobile Hamburger */}
           <button
-            className="lg:hidden p-2"
-            onClick={() => setMobileOpen(!mobileOpen)}
+            type="button"
+            className="xl:hidden p-2 rounded-md text-[#0f172a] hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1e40af]"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
+            onClick={() => setMobileOpen((open) => !open)}
           >
             {mobileOpen ? (
               <X className="w-6 h-6 text-[#0f172a]" />
@@ -149,42 +157,75 @@ export default function Navigation() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-[#172554] flex flex-col items-center justify-center gap-8 lg:hidden">
-          {navLinks.map((link, i) => (
-            <div key={link.name} className="text-center">
-              {link.hasDropdown ? (
-                <div className="space-y-4">
-                  <span className="text-white/60 text-sm uppercase tracking-wider">Services</span>
-                  <div className="flex flex-col gap-3">
-                    {serviceLinks.map((service) => (
-                      <Link
-                        key={service.name}
-                        to={service.path}
-                        className="text-white text-lg font-medium hover:text-[#0ea5e9] transition-colors"
-                        style={{ animationDelay: `${i * 0.05}s` }}
-                      >
-                        {service.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  to={link.path}
-                  className="text-white text-2xl font-semibold hover:text-[#0ea5e9] transition-colors"
-                  style={{ animationDelay: `${i * 0.05}s` }}
-                >
-                  {link.name}
-                </Link>
-              )}
-            </div>
-          ))}
-          <Link
-            to="/quote"
-            className="mt-4 bg-[#0ea5e9] text-white font-semibold px-8 py-4 rounded-full text-lg"
-          >
-            Get a Quote
-          </Link>
+        <div
+          id="mobile-navigation"
+          className="fixed inset-x-0 top-20 z-40 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-slate-200 bg-white px-4 pb-6 pt-3 shadow-xl xl:hidden sm:px-6"
+        >
+          <div className="mx-auto flex max-w-[1400px] flex-col">
+            {navLinks.map((link) => (
+              <div key={link.name} className="border-b border-slate-100">
+                {link.hasDropdown ? (
+                  <>
+                    <button
+                      type="button"
+                      aria-expanded={mobileServicesOpen}
+                      aria-controls="mobile-services"
+                      onClick={() => setMobileServicesOpen((open) => !open)}
+                      className="flex w-full items-center justify-between py-3 text-left text-lg font-semibold text-[#172554] hover:text-[#1e40af]"
+                    >
+                      Services
+                      <ChevronDown className={`h-5 w-5 transition-transform ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {mobileServicesOpen && (
+                      <div id="mobile-services" className="mb-3 grid gap-1 sm:grid-cols-2">
+                        {serviceLinks.map((service) => (
+                          <Link
+                            key={service.name}
+                            to={service.path}
+                            onClick={() => {
+                              setMobileOpen(false)
+                              setMobileServicesOpen(false)
+                            }}
+                            className="flex items-start gap-3 rounded-lg px-3 py-2.5 text-[#172554] hover:bg-slate-50"
+                          >
+                            <service.icon className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#1e40af]" />
+                            <span className="min-w-0">
+                              <span className="block font-medium">{service.name}</span>
+                              <span className="mt-0.5 block text-sm text-slate-500">{service.desc}</span>
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    to={link.path}
+                    aria-current={location.pathname === link.path ? 'page' : undefined}
+                    onClick={() => setMobileOpen(false)}
+                    className="block py-3 text-lg font-semibold text-[#172554] hover:text-[#1e40af]"
+                  >
+                    {link.name}
+                  </Link>
+                )}
+              </div>
+            ))}
+            <a
+              href="tel:08001234567"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2 py-4 font-semibold text-[#475569] hover:text-[#1e40af]"
+            >
+              <Phone className="h-5 w-5" />
+              +92 321 8400045
+            </a>
+            <Link
+              to="/quote"
+              onClick={() => setMobileOpen(false)}
+              className="mt-1 inline-flex min-h-12 items-center justify-center rounded-full bg-[#0ea5e9] px-6 py-3 font-semibold text-white transition-colors hover:bg-[#0284c7]"
+            >
+              Get a Quote
+            </Link>
+          </div>
         </div>
       )}
     </>

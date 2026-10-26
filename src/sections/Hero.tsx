@@ -89,7 +89,7 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero-section"
-      className="relative w-full overflow-hidden"
+      className="relative mt-20 xl:mt-24 w-full overflow-hidden"
       style={{ height: '100vh', background: '#172554' }}
     >
       {/* Left Panel - Text Content */}
