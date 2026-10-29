@@ -1,6 +1,7 @@
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import Navigation from './components/Navigation'
+import CustomerServiceChat from './components/CustomerServiceChat'
 import Footer from './components/Footer'
 import Home from './pages/Home'
 import ServicesSolar from './pages/ServicesSolar'
@@ -39,6 +40,7 @@ function App() {
         <Route path="/team" element={<Team />} />
       </Routes>
       <Footer />
+      <CustomerServiceChat />
     </div>
   )
 }
